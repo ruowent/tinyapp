@@ -34,6 +34,12 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
+app.post("/login", (req, res) => {
+  console.log('cookies', req.cookie)
+  console.log('request.body.username', req.body.username)
+  res.cookie('username',req.body.username);
+});
+
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
   
