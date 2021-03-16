@@ -25,10 +25,10 @@
     <div class="card-body">
       <h5 class="card-title">Edit</h5>
       <p class="card-text">
-      <form class="form-inline" action="/urls" method="POST">
+      <form class="form-inline" action="/urls/<%= shortURL %>" method="POST">
         <div class="card-body">
           <label for="longURL">New URL:</label>
-          <input class="form-control" type="text" name="longURL" value="googel.ca"
+          <input class="form-control" type="text" name="longURL" value=<%= longURL %>
             style="width: 300px; margin: 1em">
           <button type="submit" class="btn btn-primary">Submit</button>
         </div>
