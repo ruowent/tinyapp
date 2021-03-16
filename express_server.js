@@ -1,16 +1,34 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+const bodyParser = require("body-parser");
 
 app.set("view engine", "ejs");
+app.use(bodyParser.urlencoded({extended: true}));
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
+// function that returns a string of 6 random alphanumeric characters
+const generateRandomString = () => {
+  const arr = '0123456789abcdefghijklmnopqrstuvwxyz'
+  var result = ''; 
+  for (var i = len; i > 0; i--) { 
+    result += arr[Math.floor(Math.random() * arr.length)]; 
+  } 
+  return result; 
+};
+
+
 app.get("/", (req, res) => {
   res.send("Hello!");
+});
+
+app.post("/urls", (req, res) => {
+  console.log(req.body);  // Log the POST request body to the console
+  res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
 
 app.get("/urls", (req, res) => {
