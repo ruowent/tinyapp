@@ -1,7 +1,11 @@
 const express = require("express");
+const morgan = require('morgan');
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
+
+// morgan middleware allows to log the request in the terminal
+app.use(morgan('short'));
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
