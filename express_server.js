@@ -35,14 +35,17 @@ app.get("/", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  console.log('cookies', req.cookie)
-  console.log('request.body.username', req.body.username)
-  res.cookie('username',req.body.username);
+  res.cookie("username",req.body.username);
+  res.redirect("/urls");
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
+  console.log(req.cookies)
+  res.redirect("/urls");
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
-  
   const shortURL = generateRandomString();
   // Store shortURL and longURL key value pairs to the object
   urlDatabase[shortURL] = req.body.longURL;
@@ -50,7 +53,10 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = {
+    username: req.cookies["username"],
+    urls: urlDatabase 
+  };
   res.render("urls_index", templateVars);
 });
 
@@ -61,6 +67,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const templateVars = {
+    username: req.cookies["username"],
     shortURL: shortURL,
     longURL: urlDatabase[shortURL]
   };
