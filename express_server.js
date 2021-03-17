@@ -19,6 +19,19 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
 // function that returns a string of 6 random alphanumeric characters
 const generateRandomString = () => {
   const arr = '0123456789abcdefghijklmnopqrstuvwxyz'
@@ -36,16 +49,49 @@ app.get("/", (req, res) => {
 app.get("/register", (req, res) => {
 
   const templateVars = {
-    email: req.body.email,
-    password: req.body.password,
-    username: req.cookies["username"]
+    user: users[req.cookies["user_id"]]
   };
-  // test purpose
   console.log(templateVars);
   res.render("register", templateVars);
 });
 
+const emailLookup = (emailInput) => {
 
+  for (user in users) {
+    const userObj = users[user];
+    if (userObj.email === emailInput) {
+      // return falsy value to indicate there's a duplicate email record
+      return false;
+    }
+  }
+  // return truthy value to indicate there no duplicate email address
+  return true;
+};
+
+app.post("/register", (req, res) => {
+
+  const email = req.body.email;
+  const password = req.body.password;
+  const emailCheck = emailLookup(email);
+  console.log('email, password, emailCheck', email, password, emailCheck)
+
+  // send 400 error code if email or password field is blank or there's a duplicate
+  if (!email || !password || !emailCheck) {
+    res.sendStatus(400);
+    res.redirect("/register");
+  }
+
+  const id = generateRandomString();
+
+  users[id] = {
+    id,
+    email,
+    password
+  }
+
+  res.cookie("user_id", users[id].id);
+  res.redirect("/urls");
+});
 
 app.post("/login", (req, res) => {
   res.cookie("username",req.body.username);
@@ -67,7 +113,7 @@ app.post("/urls", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"],
+    user: users[req.cookies["user_id"]],
     urls: urlDatabase 
   };
   res.render("urls_index", templateVars);
@@ -75,7 +121,7 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"]
+    user: users[req.cookies["user_id"]]
   };
   res.render("urls_new", templateVars);
 });
@@ -83,7 +129,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const templateVars = {
-    username: req.cookies["username"],
+    user: users[req.cookies["user_id"]],
     shortURL: shortURL,
     longURL: urlDatabase[shortURL]
   };
