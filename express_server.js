@@ -42,19 +42,7 @@ const generateRandomString = () => {
   return result; 
 };
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-
-app.get("/register", (req, res) => {
-
-  const templateVars = {
-    user: users[req.cookies["user_id"]]
-  };
-  console.log(templateVars);
-  res.render("register", templateVars);
-});
-
+// helper function to look up if email address exsits in the object database
 const emailLookup = (emailInput) => {
 
   for (user in users) {
@@ -67,6 +55,19 @@ const emailLookup = (emailInput) => {
   // return truthy value to indicate there no duplicate email address
   return true;
 };
+
+app.get("/", (req, res) => {
+  res.send("Hello!");
+});
+
+app.get("/register", (req, res) => {
+
+  const templateVars = {
+    user: users[req.cookies["user_id"]]
+  };
+
+  res.render("register", templateVars);
+});
 
 app.post("/register", (req, res) => {
 
@@ -91,6 +92,15 @@ app.post("/register", (req, res) => {
 
   res.cookie("user_id", users[id].id);
   res.redirect("/urls");
+});
+
+app.get("/login", (req, res) => {
+
+  const templateVars = {
+    user: users[req.cookies["user_id"]]
+  };
+
+  res.render("login", templateVars);
 });
 
 app.post("/login", (req, res) => {

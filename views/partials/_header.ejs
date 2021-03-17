@@ -15,18 +15,16 @@
 
       <% if (user) { %>
         <form class="header-logout" action="/logout" method="POST">
-          Logged In As: <%= user.email %>!     
-          <button type="Submit" class="btn btn-outline-dark">Logout</button>
+          Logged In As: <%= user.email %>!
+            <button type="Submit" class="btn btn-outline-dark">Logout</button>
         </form>
         <% } else { %>
-          <form class="header-login" action="/login" method="POST">
-            <input class="header-login" type="text" name="username" placeholder="username" style="width: 300px; margin: 1em">
-            <button type="Submit" class="btn btn-outline-dark">Login</button>
-          </form>
-          <% } %>
+          <a href="/login">Login</a>
+          <a href="/register">Register</a>
+        <% } %>
 
 
-            </form>
+
     </div>
   </nav>
 </header>
