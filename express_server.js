@@ -15,8 +15,8 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
 
 const users = {
@@ -126,13 +126,20 @@ app.post("/logout", (req, res) => {
   res.redirect("/login");
 });
 
+// Create new shortURL for longURL provided by user, then redirect to the shortURL page
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
-  // Store shortURL and longURL key value pairs to the object
-  urlDatabase[shortURL] = req.body.longURL;
+  const userID = req.cookies["user_id"];
+
+  urlDatabase[userID] = {
+    longURL: req.body.longURL,
+    userID: userID
+  };
+
   res.redirect(`/urls/${shortURL}`);
 });
 
+// Display URLs
 app.get("/urls", (req, res) => {
   const templateVars = {
     user: users[req.cookies["user_id"]],
@@ -142,8 +149,15 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
+  const userID = req.cookies["user_id"];
+
+  // If user is not logged in, redirect to login page
+  if (!userID) {
+    res.redirect("/login");
+  }
+
   const templateVars = {
-    user: users[req.cookies["user_id"]]
+    user: users[userID]
   };
   res.render("urls_new", templateVars);
 });
