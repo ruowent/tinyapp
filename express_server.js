@@ -139,7 +139,7 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
-// Display URLs
+// Display URLs info
 app.get("/urls", (req, res) => {
   const templateVars = {
     user: users[req.cookies["user_id"]],
@@ -162,24 +162,26 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
+// Displays URL info and render it to urls_show ejs file
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const templateVars = {
     user: users[req.cookies["user_id"]],
     shortURL: shortURL,
-    longURL: urlDatabase[shortURL]
+    longURL: urlDatabase[shortURL].longURL
   };
   res.render("urls_show", templateVars);
 });
 
+// Update the longURL and return to /urls page
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  console.log('shortURL', shortURL)
-  urlDatabase[shortURL] = req.body.longURL;
-  console.log('show urlDatabase obj: ', urlDatabase);
+  urlDatabase[shortURL].longURL = req.body.longURL;
+
   res.redirect("/urls");
 });
 
+// Delete the URL record
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
 
@@ -188,28 +190,12 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
+// Redirect to website using shortURL
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
 
   res.redirect(longURL);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
-app.get("/set", (req, res) => {
-  const a = 1;
-  res.send(`a = ${a}`);
-});
-
-app.get("/fetch", (req, res) => {
-  res.send(`a = ${a}`);
 });
 
 app.listen(PORT, () => {
