@@ -12,22 +12,22 @@ app.use(morgan('short'));
 app.use(cookieParser());
 
 app.set("view engine", "ejs");
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
-const users = { 
+const users = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: "dishwasher-funk"
   }
 }
@@ -35,11 +35,11 @@ const users = {
 // function that returns a string of 6 random alphanumeric characters
 const generateRandomString = () => {
   const arr = '0123456789abcdefghijklmnopqrstuvwxyz'
-  var result = ''; 
-  for (var i = 6; i > 0; i--) { 
-    result += arr[Math.floor(Math.random() * arr.length)]; 
-  } 
-  return result; 
+  var result = '';
+  for (var i = 6; i > 0; i--) {
+    result += arr[Math.floor(Math.random() * arr.length)];
+  }
+  return result;
 };
 
 // helper function to look up if email address exsits in the object database
@@ -48,12 +48,9 @@ const emailLookup = (emailInput) => {
   for (user in users) {
     const userObj = users[user];
     if (userObj.email === emailInput) {
-      // return falsy value to indicate there's a duplicate email record
-      return false;
+      return userObj;
     }
   }
-  // return truthy value to indicate there no duplicate email address
-  return true;
 };
 
 app.get("/", (req, res) => {
@@ -77,7 +74,7 @@ app.post("/register", (req, res) => {
   console.log('email, password, emailCheck', email, password, emailCheck)
 
   // send 400 error code if email or password field is blank or there's a duplicate
-  if (!email || !password || !emailCheck) {
+  if (!email || !password || emailCheck) {
     res.sendStatus(400);
     res.redirect("/register");
   }
@@ -104,13 +101,28 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("username",req.body.username);
+
+  const email = req.body.email;
+  const password = req.body.password;
+  const userObj = emailLookup(email);
+
+  // if email doesn't exist, send 403 error
+  if (!userObj) {
+    res.sendStatus(403);
+  }
+
+  // if password doesn't match, send 403 error
+  if (userObj.password !== password) {
+    res.sendStatus(403);
+  }
+
+  // create cookie using the userObj.id then redirect to /urls
+  res.cookie("user_id", userObj.id);
   res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
-  console.log(req.cookies)
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
@@ -124,7 +136,7 @@ app.post("/urls", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVars = {
     user: users[req.cookies["user_id"]],
-    urls: urlDatabase 
+    urls: urlDatabase
   };
   res.render("urls_index", templateVars);
 });
@@ -148,7 +160,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  console.log('shortURL',shortURL)
+  console.log('shortURL', shortURL)
   urlDatabase[shortURL] = req.body.longURL;
   console.log('show urlDatabase obj: ', urlDatabase);
   res.redirect("/urls");
@@ -157,7 +169,7 @@ app.post("/urls/:shortURL", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
 
-  delete urlDatabase[shortURL];  
+  delete urlDatabase[shortURL];
   res.redirect("/urls");
 
 });
@@ -169,7 +181,7 @@ app.get("/urls.json", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
-  
+
   res.redirect(longURL);
 });
 
@@ -180,11 +192,11 @@ app.get("/hello", (req, res) => {
 app.get("/set", (req, res) => {
   const a = 1;
   res.send(`a = ${a}`);
- });
- 
- app.get("/fetch", (req, res) => {
+});
+
+app.get("/fetch", (req, res) => {
   res.send(`a = ${a}`);
- });
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
