@@ -2,6 +2,7 @@ const express = require("express");
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser')
 const bodyParser = require("body-parser");
+const bcrypt = require('bcrypt');
 
 const app = express();
 const PORT = 8080; // default port 8080
@@ -23,12 +24,12 @@ const users = {
   "aJ48lW": {
     id: "aJ48lW",
     email: "kiwi@gmail.com",
-    password: "1234"
+    password: "$2b$10$eBSEkIqKskLoTgYXgA8d5ues/j99mBfNPADcHgfiGC7EoXEoJf/sq"
   },
   "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: "$2b$10$eBSEkIqKskLoTgYXgA8d5ues/j99mBfNPADcHgfiGC7EoXEoJf/sq"
   }
 }
 
@@ -89,7 +90,7 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
 
   const email = req.body.email;
-  const password = req.body.password;
+  const password = bcrypt.hashSync(req.body.password, 10);
   const emailCheck = emailLookup(email);
 
   // send 400 error code if email or password field is blank or there's a duplicate
@@ -129,9 +130,9 @@ app.post("/login", (req, res) => {
   if (!userObj) {
     res.sendStatus(403);
   }
-
+console.log(userObj);
   // if password doesn't match, send 403 error
-  if (userObj.password !== password) {
+  if (!bcrypt.compareSync(password, userObj.password)) {
     res.sendStatus(403);
   }
 
