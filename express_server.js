@@ -55,27 +55,22 @@ const emailLookup = (emailInput) => {
 
 
 // Function which returns the URLs where the userID is equal to the id of the currently logged-in user
-const urlsForUser = (id) {
+const urlsForUser = (id) => {
 
-
+  const urlArr = [];
+  // Display only URLs shortened by logged in user
+  for (let shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === id) {
+      const urlObj = {
+        shortURL: shortURL,
+        longURL: urlDatabase[shortURL].longURL
+      }
+      urlArr.push(urlObj);
+    }
+  }
+  return urlArr;
 };
 
-app.get("/urls/:id", (req, res) => {
-  const userID = req.cookies["user_id"];
-  const urlUserID = req.params.id;
-
-  // Display an error message if user is not logged in
-  if (!userID) {
-    res.send("Please login or register first!");
-  }
-
-  if (urlUserID !== userID) {
-    res.send(`You don't have access to user's (${urlUserID}) page!`)
-  }
-
-
-
-});
 
 
 // app.get("/", (req, res) => {
@@ -172,22 +167,14 @@ app.get("/urls", (req, res) => {
   if (!userID) {
     res.send("Please login or register first!");
   }
+  
+  const urlArr = urlsForUser(userID);
 
   const templateVars = {
     user: users[userID],
-    urls: []
+    urls: urlArr
   };
-  const arr = templateVars.urls;
-  // Display only URLs shortened by logged in user
-  for (let shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === userID) {
-      const urlObj = {
-        shortURL: shortURL,
-        longURL: urlDatabase[shortURL].longURL
-      }
-      arr.push(urlObj);
-    }
-  }
+
   res.render("urls_index", templateVars);
 });
 
@@ -234,15 +221,41 @@ app.post("/urls/:shortURL", (req, res) => {
 
 // Delete the URL record
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const shortURL = req.params.shortURL;
 
+  const userID = req.cookies["user_id"];
+  const urlUserID = req.params.id;
+
+  // Display an error message if user is not logged in
+  if (!userID) {
+    res.send("Please login or register first!");
+  }
+
+  if (urlUserID !== userID) {
+    res.send(`You don't have access to user's (${urlUserID}) page!`)
+  }
+  
+  const shortURL = req.params.shortURL;
+  if (urlUserID === userID) {
   delete urlDatabase[shortURL];
+  }
   res.redirect("/urls");
 
 });
 
 // Redirect to website using shortURL
 app.get("/u/:shortURL", (req, res) => {
+  const userID = req.cookies["user_id"];
+  const urlUserID = req.params.id;
+
+  // Display an error message if user is not logged in
+  if (!userID) {
+    res.send("Please login or register first!");
+  }
+
+  if (urlUserID !== userID) {
+    res.send(`You don't have access to user's (${urlUserID}) page!`)
+  }
+
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL].longURL;
 
