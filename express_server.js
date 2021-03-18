@@ -53,9 +53,34 @@ const emailLookup = (emailInput) => {
   }
 };
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
+
+// Function which returns the URLs where the userID is equal to the id of the currently logged-in user
+const urlsForUser = (id) {
+
+
+};
+
+app.get("/urls/:id", (req, res) => {
+  const userID = req.cookies["user_id"];
+  const urlUserID = req.params.id;
+
+  // Display an error message if user is not logged in
+  if (!userID) {
+    res.send("Please login or register first!");
+  }
+
+  if (urlUserID !== userID) {
+    res.send(`You don't have access to user's (${urlUserID}) page!`)
+  }
+
+
+
 });
+
+
+// app.get("/", (req, res) => {
+//   res.send("Hello!");
+// });
 
 app.get("/register", (req, res) => {
 
@@ -71,7 +96,6 @@ app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const emailCheck = emailLookup(email);
-  console.log('email, password, emailCheck', email, password, emailCheck)
 
   // send 400 error code if email or password field is blank or there's a duplicate
   if (!email || !password || emailCheck) {
@@ -186,16 +210,12 @@ app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const userID = req.cookies["user_id"];
 
-  console.log(shortURL)
-  console.log('userID = ',userID)
-  console.log(urlDatabase[shortURL])
   const templateVars = {
     user: users[userID],
     shortURL: shortURL,
     longURL: urlDatabase[shortURL].longURL
   };
 
-  console.log(templateVars)
   res.render("urls_show", templateVars);
 });
 
