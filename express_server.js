@@ -3,7 +3,7 @@ const morgan = require('morgan');
 const cookieSession = require('cookie-session');
 const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
-const { getUserByEmail } = require('./helpers.js');
+const { getUserByEmail, generateRandomString, urlsForUser } = require('./helpers.js');
 
 const app = express();
 const PORT = process.env.PORT || 8080; // default port 8080
@@ -48,6 +48,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(setCurrentUser);
 
 
+
 // Define urlDatabase object { shortURL: { LongURL, userID } }
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
@@ -67,34 +68,6 @@ const users = {
   }
 }
 
-// function that returns a string of 6 random alphanumeric characters
-const generateRandomString = () => {
-  const arr = '0123456789abcdefghijklmnopqrstuvwxyz'
-  var result = '';
-  for (var i = 6; i > 0; i--) {
-    result += arr[Math.floor(Math.random() * arr.length)];
-  }
-  return result;
-};
-
-
-
-// Function which returns the URLs where the userID is equal to the id of the currently logged-in user
-const urlsForUser = (id) => {
-
-  const urlArr = [];
-  // Display only URLs shortened by logged in user
-  for (let shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === id) {
-      const urlObj = {
-        shortURL: shortURL,
-        longURL: urlDatabase[shortURL].longURL
-      }
-      urlArr.push(urlObj);
-    }
-  }
-  return urlArr;
-};
 
 
 
@@ -197,7 +170,7 @@ app.get("/urls", (req, res) => {
     res.send("Please login or register first!");
   }
   
-  const urlArr = urlsForUser(userID);
+  const urlArr = urlsForUser(userID, urlDatabase);
 
   const templateVars = {
     user: users[userID],
