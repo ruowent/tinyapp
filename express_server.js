@@ -3,6 +3,7 @@ const morgan = require('morgan');
 const cookieSession = require('cookie-session');
 const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
+const { getUserByEmail } = require('./helpers.js');
 
 const app = express();
 const PORT = process.env.PORT || 8080; // default port 8080
@@ -76,16 +77,6 @@ const generateRandomString = () => {
   return result;
 };
 
-// helper function to look up if email address exsits in the object database
-const getUserByEmail = (email, database) => {
-
-  for (user in database) {
-    const userObj = database[user];
-    if (userObj.email === email) {
-      return userObj;
-    }
-  }
-};
 
 
 // Function which returns the URLs where the userID is equal to the id of the currently logged-in user
