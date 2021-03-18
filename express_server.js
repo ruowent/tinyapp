@@ -20,10 +20,10 @@ const urlDatabase = {
 };
 
 const users = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+  "aJ48lW": {
+    id: "aJ48lW",
+    email: "kiwi@gmail.com",
+    password: "1234"
   },
   "user2RandomID": {
     id: "user2RandomID",
@@ -127,11 +127,11 @@ app.post("/logout", (req, res) => {
 });
 
 // Create new shortURL for longURL provided by user, then redirect to the shortURL page
-app.post("/urls", (req, res) => {
+app.post("/urls/new", (req, res) => {
   const shortURL = generateRandomString();
   const userID = req.cookies["user_id"];
 
-  urlDatabase[userID] = {
+  urlDatabase[shortURL] = {
     longURL: req.body.longURL,
     userID: userID
   };
@@ -141,10 +141,29 @@ app.post("/urls", (req, res) => {
 
 // Display URLs info
 app.get("/urls", (req, res) => {
+
+  const userID = req.cookies["user_id"];
+
+  // Display an error message if user is not logged in
+  if (!userID) {
+    res.send("Please login or register first!");
+  }
+
   const templateVars = {
-    user: users[req.cookies["user_id"]],
-    urls: urlDatabase
+    user: users[userID],
+    urls: []
   };
+  const arr = templateVars.urls;
+  // Display only URLs shortened by logged in user
+  for (let shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === userID) {
+      const urlObj = {
+        shortURL: shortURL,
+        longURL: urlDatabase[shortURL].longURL
+      }
+      arr.push(urlObj);
+    }
+  }
   res.render("urls_index", templateVars);
 });
 
@@ -165,12 +184,24 @@ app.get("/urls/new", (req, res) => {
 // Displays URL info and render it to urls_show ejs file
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
+  const userID = req.cookies["user_id"];
+
+  console.log(shortURL)
+  console.log('userID = ',userID)
+  console.log(urlDatabase[shortURL])
   const templateVars = {
-    user: users[req.cookies["user_id"]],
+    user: users[userID],
     shortURL: shortURL,
     longURL: urlDatabase[shortURL].longURL
   };
+
+  console.log(templateVars)
   res.render("urls_show", templateVars);
+});
+
+app.get("/urls.json", (req, res) => {
+
+  res.send(urlDatabase)
 });
 
 // Update the longURL and return to /urls page
