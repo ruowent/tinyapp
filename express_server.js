@@ -223,7 +223,8 @@ app.post("/urls/:shortURL", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
 
   const userID = req.cookies["user_id"];
-  const urlUserID = req.params.id;
+  const shortURL = req.params.shortURL;
+  const urlUserID = urlDatabase[shortURL].userID;
 
   // Display an error message if user is not logged in
   if (!userID) {
@@ -234,7 +235,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     res.send(`You don't have access to user's (${urlUserID}) page!`)
   }
   
-  const shortURL = req.params.shortURL;
+
   if (urlUserID === userID) {
   delete urlDatabase[shortURL];
   }
