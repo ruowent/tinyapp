@@ -77,11 +77,11 @@ const generateRandomString = () => {
 };
 
 // helper function to look up if email address exsits in the object database
-const emailLookup = (emailInput) => {
+const getUserByEmail = (email, database) => {
 
-  for (user in users) {
-    const userObj = users[user];
-    if (userObj.email === emailInput) {
+  for (user in database) {
+    const userObj = database[user];
+    if (userObj.email === email) {
       return userObj;
     }
   }
@@ -125,7 +125,7 @@ app.post("/register", (req, res) => {
 
   const email = req.body.email;
   const password = bcrypt.hashSync(req.body.password, 10);
-  const emailCheck = emailLookup(email);
+  const emailCheck = getUserByEmail(email, users);
 
   // send 400 error code if email or password field is blank or there's a duplicate
   if (!email || !password || emailCheck) {
@@ -158,7 +158,7 @@ app.post("/login", (req, res) => {
 
   const email = req.body.email;
   const password = req.body.password;
-  const userObj = emailLookup(email);
+  const userObj = getUserByEmail(email, users);
 
   // if email doesn't exist, send 403 error
   if (!userObj) {
