@@ -1,7 +1,7 @@
 // helper function to look up if email address exsits in the object database
 const getUserByEmail = (email, database) => {
 
-  for (user in database) {
+  for (let user in database) {
     const userObj = database[user];
     if (userObj.email === email) {
       return userObj;
@@ -11,9 +11,9 @@ const getUserByEmail = (email, database) => {
 
 // function that returns a string of 6 random alphanumeric characters
 const generateRandomString = () => {
-  const arr = '0123456789abcdefghijklmnopqrstuvwxyz'
-  var result = '';
-  for (var i = 6; i > 0; i--) {
+  const arr = '0123456789abcdefghijklmnopqrstuvwxyz';
+  let result = '';
+  for (let i = 6; i > 0; i--) {
     result += arr[Math.floor(Math.random() * arr.length)];
   }
   return result;
@@ -30,19 +30,12 @@ const urlsForUser = (id, database) => {
       const urlObj = {
         shortURL: shortURL,
         longURL: database[shortURL].longURL
-      }
+      };
       urlArr.push(urlObj);
     }
   }
   return urlArr;
 };
 
-// Return an error message if shortURL does not exist
-const checkShortURL = (shortURL, database) => {
 
-  if (!database[shortURL]) {
-    return 'Short URL does not exist. Please check again.';
-  }
-}
-
-module.exports = { getUserByEmail, generateRandomString, urlsForUser, checkShortURL };
+module.exports = { getUserByEmail, generateRandomString, urlsForUser };

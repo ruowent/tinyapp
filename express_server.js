@@ -3,9 +3,9 @@ const morgan = require('morgan');
 const cookieSession = require('cookie-session');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
-const { getUserByEmail, generateRandomString, urlsForUser, checkShortURL } = require('./helpers.js');
+const { getUserByEmail, generateRandomString, urlsForUser } = require('./helpers.js');
 const app = express();
-const PORT = process.env.PORT || 8080; // default port 8080
+const PORT = 8080; // default port 8080
 
 // morgan middleware allows to log the request in the terminal
 app.use(morgan('short'));
@@ -31,12 +31,8 @@ const setCurrentUser = (req, res, next) => {
   const userObj = users[userId];
 
   req.currentUser = userObj;
-
-  console.log(req.currentUser);
-
   // call next to pass the flow to the next middleware
   next();
-
 };
 
 // activate the middleware function
@@ -59,7 +55,7 @@ const users = {
     email: 'user2@example.com',
     password: '$2b$10$eBSEkIqKskLoTgYXgA8d5ues/j99mBfNPADcHgfiGC7EoXEoJf/sq'
   }
-}
+};
 
 // Redirections on / page access
 app.get("/", (req, res) => {
@@ -128,7 +124,7 @@ app.get('/urls/:id', (req, res) => {
 
   // Display an error message if user does not own this shortURL
   if (userID !== urlUserID) {
-    res.send('You do not have access to view this page.')
+    res.send('You do not have access to view this page.');
   }
 
   const templateVars = {
@@ -149,7 +145,7 @@ app.get('/u/:id', (req, res) => {
   if (!urlDatabase[shortURL]) {
     res.send('Short URL does not exist. Please check again.');
   }
-  
+
   const longURL = urlDatabase[shortURL].longURL;
   res.redirect(longURL);
 });
@@ -202,11 +198,11 @@ app.post('/urls/:id/delete', (req, res) => {
 
   // Display an error message if user does not own this shortURL
   if (userID !== urlUserID) {
-    res.send('You do not have access to view this page.')
-  } 
+    res.send('You do not have access to view this page.');
+  }
 
   delete urlDatabase[shortURL];
-  
+
   res.redirect('/urls');
 
 });
@@ -246,13 +242,13 @@ app.post('/login', (req, res) => {
   // if email doesn't exist, send 403 error
   if (!userObj) {
     res.status(403);
-    res.send('Incorrect email address provided.')
+    res.send('Incorrect email address provided.');
   }
 
   // if password doesn't match, send 403 error
   if (!bcrypt.compareSync(password, userObj.password)) {
     res.status(403);
-    res.send('Incorrect password provided.')
+    res.send('Incorrect password provided.');
   }
 
   // create cookie using the userObj.id then redirect to /urls
@@ -270,13 +266,13 @@ app.post('/register', (req, res) => {
   // send 400 error code if email or password field is blank
   if (!email || !password) {
     res.status(400);
-    res.send('Please fill out both email and password fields.')
+    res.send('Please fill out both email and password fields.');
     res.redirect('/register');
   }
   // Send error status 400 and indiciate the email address exists
   if (emailCheck) {
     res.status(400);
-    res.send('Email address already exist. Please use a new email.')
+    res.send('Email address already exist. Please use a new email.');
   }
 
   // Add new user info to the users object under the id key
@@ -294,7 +290,6 @@ app.post('/logout', (req, res) => {
 
   res.redirect('/login');
 });
-
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
