@@ -2,11 +2,6 @@
 
 TinyApp is a full stack web application built with Node and Express that allows users to shorten long URLs (à la bit.ly).
 
-## Final Product
-
-!["screenshot of the login page"](https://github.com/ruowent/tinyapp/blob/main/docs/login-page.png)
-!["screenshot of the register page"](https://github.com/ruowent/tinyapp/blob/main/docs/registration-page.png)
-
 ## Dependencies
 
 - Node.js
@@ -22,17 +17,20 @@ TinyApp is a full stack web application built with Node and Express that allows 
 - Install all dependencies (using the `npm install` command).
 - Run the development web server using the `npm start` command.
 
-## Functionality
+## Final Product
 
-#### `GET /`
+#### Login Page
+!["screenshot of the login page"](https://github.com/ruowent/tinyapp/blob/main/docs/login-page.png)
 
-- if user is logged in:
-(Minor) redirect to /urls
-- if user is not logged in:
-(Minor) redirect to /login
+#### Registration Page
+!["screenshot of the register page"](https://github.com/ruowent/tinyapp/blob/main/docs/registration-page.png)
 
-#### `GET /urls`
+#### TinyURL listing
+!["screenshot of the urls page"](https://github.com/ruowent/tinyapp/blob/main/docs/urls.png)
 
-- if user is logged in:
-returns HTML with:
-the site header (see Display Requirements above)
+#### TinyURL creation
+!["screenshot of the new url"](https://github.com/ruowent/tinyapp/blob/main/docs/new-url-create.png)
+
+#### URL Update
+!["screenshot of the urls page"](https://github.com/ruowent/tinyapp/blob/main/docs/url-update.png)
+
