@@ -37,5 +37,12 @@ const urlsForUser = (id, database) => {
   return urlArr;
 };
 
+// Return an error message if shortURL does not exist
+const checkShortURL = (shortURL, database) => {
 
-module.exports = { getUserByEmail, generateRandomString, urlsForUser };
+  if (!database[shortURL]) {
+    return 'Short URL does not exist. Please check again.';
+  }
+}
+
+module.exports = { getUserByEmail, generateRandomString, urlsForUser, checkShortURL };
