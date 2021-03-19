@@ -26,28 +26,23 @@ app.set("view engine", "ejs");
 // Parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// // create a middlware function
-// const setCurrentUser = (req, res, next) => {
+// create a middlware function to extract userObj
+const setCurrentUser = (req, res, next) => {
 
-//   const userId = req.session['user_id'];
-//   const userObj = usersDb[userId] || null;
+  const userId = req.session['user_id'];
+  const userObj = users[userId];
 
-//   req.currentUser = userObj;
+  req.currentUser = userObj;
 
-//   console.log(req.currentUser);
-//   // 2 potential values
-//   // a. undefined => not logged in
-//   // b. user object
+  console.log(req.currentUser);
 
-//   // call next to pass the flow to the next middleware
-//   next();
+  // call next to pass the flow to the next middleware
+  next();
 
-// };
+};
 
-// // activate the middleware function
-// app.use(setCurrentUser);
-
-
+// activate the middleware function
+app.use(setCurrentUser);
 
 // Define urlDatabase object { shortURL: { LongURL, userID } }
 const urlDatabase = {
@@ -68,19 +63,10 @@ const users = {
   }
 }
 
-
-
-
-// app.get("/", (req, res) => {
-//   res.send("Hello!");
-// });
-
 // Display the register form
 app.get("/register", (req, res) => {
 
-  const templateVars = {
-    user: users[req.session["user_id"]]
-  };
+  const templateVars = { user: req.currentUser };
 
   res.render("register", templateVars);
 });
