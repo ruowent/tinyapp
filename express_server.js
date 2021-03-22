@@ -41,18 +41,7 @@ app.use(setCurrentUser);
 // Define urlDatabase object { shortURL: { LongURL, userID } }
 const urlDatabase = {};
 
-const users = {
-  'aJ48lW': {
-    id: 'aJ48lW',
-    email: 'kiwi@gmail.com',
-    password: '$2b$10$eBSEkIqKskLoTgYXgA8d5ues/j99mBfNPADcHgfiGC7EoXEoJf/sq'
-  },
-  'user2RandomID': {
-    id: 'user2RandomID',
-    email: 'user2@example.com',
-    password: '$2b$10$eBSEkIqKskLoTgYXgA8d5ues/j99mBfNPADcHgfiGC7EoXEoJf/sq'
-  }
-};
+const users = {};
 
 // Redirections on / page access
 app.get("/", (req, res) => {
