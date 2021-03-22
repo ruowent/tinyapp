@@ -39,10 +39,7 @@ const setCurrentUser = (req, res, next) => {
 app.use(setCurrentUser);
 
 // Define urlDatabase object { shortURL: { LongURL, userID } }
-const urlDatabase = {
-  b6UTxQ: { longURL: 'https://www.tsn.ca', userID: 'aJ48lW' },
-  i3BoGr: { longURL: 'https://www.google.ca', userID: 'aJ48lW' }
-};
+const urlDatabase = {};
 
 const users = {
   'aJ48lW': {
@@ -63,7 +60,7 @@ app.get("/", (req, res) => {
 
   // Redirect to /urls page if user already logged in
   if (user) {
-    res.redirect('/urls');
+    return res.redirect('/urls');
   }
 
   // Redirect to /login page if user hasn't logged in
@@ -77,7 +74,7 @@ app.get('/urls', (req, res) => {
 
   // Display an error message if user is not logged in
   if (!userID) {
-    res.send('Please login or register first!');
+    return res.send('Please login or register first!');
   }
   // Save urls under the logged in user's id into an array
   const urlArray = urlsForUser(userID, urlDatabase);
@@ -91,16 +88,18 @@ app.get('/urls', (req, res) => {
 });
 
 app.get('/urls/new', (req, res) => {
+
   const userID = req.session['user_id'];
 
   // If user is not logged in, redirect to login page
   if (!userID) {
-    res.redirect('/login');
+    return res.redirect('/login');
   }
 
   const templateVars = {
     user: users[userID]
   };
+
   res.render('urls_new', templateVars);
 });
 
@@ -109,14 +108,15 @@ app.get('/urls/:id', (req, res) => {
   const shortURL = req.params.id;
   const userObj = req.currentUser;
 
-  // Display an error message if shortURL does not exist
+
+  // Checking user conditions and display error message
   if (!urlDatabase[shortURL]) {
-    res.send('Short URL does not exist. Please check again.');
+    return res.send('Short URL does not exist. Please check again.');
   }
 
   // Display an error message if user is not logged in
   if (!userObj) {
-    res.send('Please login to get access.');
+    return res.send('Please login to get access.');
   }
 
   const userID = userObj.id;
@@ -124,26 +124,26 @@ app.get('/urls/:id', (req, res) => {
 
   // Display an error message if user does not own this shortURL
   if (userID !== urlUserID) {
-    res.send('You do not have access to view this page.');
+    return res.send('You do not have access to view this page.');
   }
 
   const templateVars = {
-    user: userID,
+    user: userObj,
     shortURL: shortURL,
     longURL: urlDatabase[shortURL].longURL
   };
-
+  
   res.render('urls_show', templateVars);
+
 });
 
 // Redirect to website using shortURL
 app.get('/u/:id', (req, res) => {
-
   const shortURL = req.params.id;
 
   // Display an error message if shortURL does not exist
   if (!urlDatabase[shortURL]) {
-    res.send('Short URL does not exist. Please check again.');
+    return res.send('Short URL does not exist. Please check again.');
   }
 
   const longURL = urlDatabase[shortURL].longURL;
@@ -156,7 +156,7 @@ app.post('/urls', (req, res) => {
   const userObj = req.currentUser;
 
   if (!userObj) {
-    res.send('Please login to get access');
+    return res.send('Please login to get access');
   }
 
   urlDatabase[shortURL] = {
@@ -172,6 +172,26 @@ app.post('/urls', (req, res) => {
 // Update the longURL and return to /urls page
 app.post('/urls/:id', (req, res) => {
   const shortURL = req.params.id;
+  const userObj = req.currentUser;
+
+  // Checking user conditions and display error message
+  if (!urlDatabase[shortURL]) {
+    return res.send('Short URL does not exist. Please check again.');
+  }
+
+  // Display an error message if user is not logged in
+  if (!userObj) {
+    return res.send('Please login to get access.');
+  }
+
+  const userID = userObj.id;
+  const urlUserID = urlDatabase[shortURL].userID;
+
+  // Display an error message if user does not own this shortURL
+  if (userID !== urlUserID) {
+    return res.send('You do not have access to view this page.');
+  }
+
   urlDatabase[shortURL].longURL = req.body.longURL;
 
   res.redirect('/urls');
@@ -183,14 +203,14 @@ app.post('/urls/:id/delete', (req, res) => {
   const shortURL = req.params.id;
   const userObj = req.currentUser;
 
-  // Display an error message if shortURL does not exist
+  // Checking user conditions and display error message
   if (!urlDatabase[shortURL]) {
-    res.send('Short URL does not exist. Please check again.');
+    return res.send('Short URL does not exist. Please check again.');
   }
 
   // Display an error message if user is not logged in
   if (!userObj) {
-    res.send('Please login to get access.');
+    return res.send('Please login to get access.');
   }
 
   const userID = userObj.id;
@@ -198,13 +218,13 @@ app.post('/urls/:id/delete', (req, res) => {
 
   // Display an error message if user does not own this shortURL
   if (userID !== urlUserID) {
-    res.send('You do not have access to view this page.');
+    return res.send('You do not have access to view this page.');
   }
 
   delete urlDatabase[shortURL];
 
-  res.redirect('/urls');
 
+  res.redirect('/urls');
 });
 
 // Display login page
@@ -212,7 +232,7 @@ app.get('/login', (req, res) => {
   const userObj = req.currentUser;
 
   if (userObj) {
-    res.redirect('/urls');
+    return res.redirect('/urls');
   }
 
   const templateVars = { user: userObj };
@@ -225,7 +245,7 @@ app.get('/register', (req, res) => {
   const userObj = req.currentUser;
 
   if (userObj) {
-    res.redirect('/urls');
+    return res.redirect('/urls');
   }
 
   const templateVars = { user: userObj };
@@ -242,13 +262,12 @@ app.post('/login', (req, res) => {
   // if email doesn't exist, send 403 error
   if (!userObj) {
     res.status(403);
-    res.send('Incorrect email address provided.');
+    return res.send('Incorrect email address provided.');
   }
-
-  // if password doesn't match, send 403 error
+  
   if (!bcrypt.compareSync(password, userObj.password)) {
     res.status(403);
-    res.send('Incorrect password provided.');
+    return res.send('Incorrect password provided.');
   }
 
   // create cookie using the userObj.id then redirect to /urls
@@ -260,20 +279,22 @@ app.post('/login', (req, res) => {
 app.post('/register', (req, res) => {
   const id = generateRandomString();
   const email = req.body.email;
-  const password = bcrypt.hashSync(req.body.password, 10);
+  let password = req.body.password;
   const emailCheck = getUserByEmail(email, users);
 
   // send 400 error code if email or password field is blank
   if (!email || !password) {
+
     res.status(400);
-    res.send('Please fill out both email and password fields.');
-    res.redirect('/register');
+    return res.send('Please fill out both email and password fields.');
   }
   // Send error status 400 and indiciate the email address exists
   if (emailCheck) {
     res.status(400);
-    res.send('Email address already exist. Please use a new email.');
+    return res.send('Email address already exist. Please use a new email.');
   }
+
+  password = bcrypt.hashSync(req.body.password, 10);
 
   // Add new user info to the users object under the id key
   users[id] = { id, email, password };
@@ -288,7 +309,7 @@ app.post('/logout', (req, res) => {
   // Clear the cookies
   req.session['user_id'] = null;
 
-  res.redirect('/login');
+  return res.redirect('/login');
 });
 
 app.listen(PORT, () => {
